@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const orderRoutes = require('./api/routes/orders');
 const productRoutes = require('./api/routes/products');
+const userRoutes = require('./api/routes/users');
 
 mongoose.connect("mongodb://localhost:27017/node-rest-api", { useNewUrlParser: true, useUnifiedTopology: true } ,(error) => {
     if(!error) {
@@ -15,7 +16,10 @@ mongoose.connect("mongodb://localhost:27017/node-rest-api", { useNewUrlParser: t
     }
 });
 
+mongoose.Promise = global.Promise;
+
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -34,6 +38,7 @@ app.use((res, req, next) => {
 
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/user', userRoutes);
 
 
 app.use((req, res, next) => {
