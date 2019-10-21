@@ -1,11 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+    }
+});
+
+// TO send EMAIL for Multiple people 
+
+    // let mailOption = {
+    //     from: 'paritoshpuranik17@gmail.com',
+    //     to: 'ganesh@gmail.com, paritoshpuranik@gmail.com',
+    //     subject: 'Successful Login',
+    //     text: 'Welcome ' +req.body.email
+    // }
+// TO send EMail for Multiple use ends
+
+// TO add CC in mail Start
+    // let mailOption = {
+    //     from: 'paritoshpuranik17@gmail.com',
+    //     to: 'ganesh@gmail.com, paritoshpuranik@gmail.com',
+    //     cc: 'email@gmail.com'
+    //     subject: 'Successful Login',
+    //     text: 'Welcome ' +req.body.email
+    // }
+
+// To add cc in mail ends
+
 
 router.post('/signup', (req, res, next) => {
     User.find({ email: req.body.email })
@@ -30,9 +62,23 @@ router.post('/signup', (req, res, next) => {
                     user.save()
                     .then(result => {
                         console.log(result);
+                        let mailOption = {
+                            from: 'paritoshpuranik17@gmail.com',
+                            to: req.body.email,
+                            subject: 'Successful Login',
+                            text: 'Welcome ' +req.body.email
+                        }
+                        transporter.sendMail(mailOption, function(err, data) {
+                            if(err) {
+                                console.log('Error' +err);
+                            } else {
+                                console.log('Email Sent !!!');
+                            }
+                        })
                         res.status(201).json({
                             message: 'User Created'
                         })
+                        
                     })
                     .catch(err => {
                         console.log(err);
